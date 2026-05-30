@@ -36,6 +36,37 @@ def test_power_and_efficiency_formulas():
     assert 0 <= df["efficiency [%]"].iloc[0] <= 100
 
 
+def test_clean_contradictory_rows_removes_bad():
+    row = _synthetic_row()
+    row["HDF"] = 1  # флаг активен, но Machine failure = 0 — противоречие
+    cleaned = build_features(row, is_train=True)
+    assert len(cleaned) == 0
+
+
+def test_clean_contradictory_rows_keeps_consistent():
+    row = _synthetic_row()  # Machine failure=0, все флаги 0 — всё ок
+    cleaned = build_features(row, is_train=True)
+    assert len(cleaned) == 1
+
+
+def test_efficiency_clipped_to_valid_range():
+    row = _synthetic_row()
+    # Process temp < Air temp → delta отрицательный → без clip efficiency уходит < 0
+    row["Air temperature [K]"] = 320.0
+    row["Process temperature [K]"] = 300.0
+    df = build_features(row, is_train=True)
+    assert df["efficiency [%]"].iloc[0] >= 0.0
+    assert df["efficiency [%]"].iloc[0] <= 100.0
+
+
+def test_total_failures_cum_excludes_current_row():
+    row = _synthetic_row()
+    row["TWF"] = 1  # текущая строка имеет отказ
+    df = build_features(row, is_train=False)
+    # первая строка в группе не должна считать свой собственный отказ
+    assert df["total_failures_cum"].iloc[0] == 0
+
+
 def test_get_feature_matrix_shape():
     df = build_features(_synthetic_row(), is_train=True)
     X, y = get_feature_matrix(df, include_target=True)
