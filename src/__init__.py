@@ -1,1 +1,1 @@
-"""MLOps pipeline for machine failure prediction (keis7)."""
+"""MLOps pipeline for machine failure prediction."""

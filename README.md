@@ -5,7 +5,7 @@
 Автоматизированный ML-пайплайн для бинарной классификации отказов промышленного оборудования на датасете [Kaggle Playground Series S3E17](https://www.kaggle.com/competitions/playground-series-s3e17).
 
 > **Ссылка на GitHub:** https://github.com/svscrip/auto_ML-prediction_machines_failures  
-> **Ветка сдачи проекта:** [Yanshin](https://github.com/svscrip/auto_ML-prediction_machines_failures/tree/Yanshin)  
+> **Ветка сдачи проекта:** [main](https://github.com/svscrip/auto_ML-prediction_machines_failures/tree/main)
 > **Доступ преподавателю:** добавьте collaborator `@ElenaSmyslovskikh`.
 
 ---
@@ -90,7 +90,7 @@ flowchart TB
 - **Валидация:** stratified hold-out 80/20  
 - **Early stopping** по AUC на validation set  
 
-> **Примечание:** флаги TWF/HDF/PWF/OSF сильно коррелируют с целевой переменной (как в EDA keis7). Для учебного кейса они включены; для production рекомендуется отдельная модель без них.
+> **Примечание:** флаги TWF/HDF/PWF/OSF сильно коррелируют с целевой переменной (как в EDA). Для учебного кейса они включены; для production рекомендуется отдельная модель без них.
 
 Конфигурация: [`src/config.py`](src/config.py).
 
@@ -113,7 +113,7 @@ flowchart TB
 
 > Низкий Precision типичен для сильно несбалансированного класса: модель агрессивнее ловит отказы (высокий Recall).
 
-**Базовое исследование keis7** (кросс-валидация, [`model_metadata.json`](reference-material/keis7-research/model_metadata.json)):
+**Базовое исследование** (кросс-валидация, [`model_metadata.json`](reference-material/keis7-research/model_metadata.json)):
 
 | Метрика | Mean | Std |
 |---------|------|-----|
@@ -136,7 +136,7 @@ flowchart TB
 
 ## 6. Визуализации
 
-### EDA (разведочный анализ keis7)
+### EDA (разведочный анализ)
 
 | Распределение отказов | КПД vs износ | Тренд КПД |
 |-----------------------|--------------|-----------|
@@ -316,7 +316,7 @@ git commit -m "Initial MLOps pipeline for machine failure prediction"
 git branch -M main
 
 git remote add origin https://github.com/svscrip/auto_ML-prediction_machines_failures.git
-git push -u origin main:Yanshin
+git push -u origin main
 ```
 
 **Командная работа (ветки и pull request):**
@@ -325,9 +325,9 @@ git push -u origin main:Yanshin
 git checkout -b feature/uchastnik-1-etl
 git add . && git commit -m "feat: ETL and feature engineering"
 git push -u origin feature/uchastnik-1-etl
-gh pr create --title "Участник 1: ETL" --base Yanshin
+gh pr create --title "Участник 1: ETL" --base main
 
-git checkout Yanshin && git pull
+git checkout main && git pull
 git checkout -b feature/uchastnik-2-train
 # ... аналогично для Участника 2, 3, 4
 ```
@@ -376,7 +376,7 @@ docker compose up mlflow            # http://localhost:5000
 ## 13. GitHub-репозиторий
 
 **Репозиторий проекта:** https://github.com/svscrip/auto_ML-prediction_machines_failures  
-**Ветка сдачи:** https://github.com/svscrip/auto_ML-prediction_machines_failures/tree/Yanshin
+**Ветка сдачи:** https://github.com/svscrip/auto_ML-prediction_machines_failures/tree/main
 
 - Репозиторий **публичный** (открытый доступ для проверки).
 - CI: GitHub Actions — pytest + Docker smoke train (см. §11).
@@ -397,7 +397,7 @@ docker compose up mlflow            # http://localhost:5000
 
 | № | Участник | Зона ответственности |
 |---|----------|---------------------|
-| 1 | **Участник 1** | ETL, feature engineering, EDA (keis7) |
+| 1 | **Участник 1** | ETL, feature engineering, EDA |
 | 2 | **Участник 2** | Обучение модели, MLflow, метрики |
 | 3 | **Участник 3** | Инференс, мониторинг, рекомендации по обслуживанию |
 | 4 | **Участник 4** | Docker, CI/CD, README, презентация |
@@ -447,4 +447,4 @@ bhemml-25-amo-2/
 
 ## Лицензия и данные
 
-Данные: Kaggle Playground Series S3E17. Исходные ноутбуки keis7 — учебный репозиторий команды кейса 7.
+Данные: Kaggle Playground Series S3E17. Исходные ноутбуки исследования — в `reference-material/`.
