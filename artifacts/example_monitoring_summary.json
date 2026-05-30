@@ -1,0 +1,20 @@
+{
+  "stage": "training",
+  "model_metrics": {
+    "roc_auc": 0.934,
+    "recall": 0.786,
+    "precision": 0.393,
+    "f1": 0.524,
+    "train_time_sec": 5.3
+  },
+  "data_quality": {
+    "rows": 4987,
+    "target_rate": 0.0138,
+    "null_total": 0,
+    "type_distribution": {"L": 3493, "M": 1137, "H": 357}
+  },
+  "infrastructure": {
+    "before": {"cpu_percent": 18.1, "ram_total_gb": 31.91, "ram_used_percent": 54.3},
+    "after": {"cpu_percent": 5.7, "ram_total_gb": 31.91, "ram_used_percent": 54.5}
+  }
+}

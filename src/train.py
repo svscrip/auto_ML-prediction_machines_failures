@@ -29,11 +29,18 @@ from src.mlflow_setup import setup_mlflow
 from src.etl.features import build_features, get_feature_matrix
 from src.etl.load import load_train
 from src.monitoring import (
+    build_training_monitoring_summary,
     compute_data_quality_report,
     infrastructure_snapshot,
     save_monitoring_report,
 )
-from src.plots import save_confusion_matrix, save_feature_importance, save_roc_curve
+from src.plots import (
+    save_confusion_matrix,
+    save_feature_importance,
+    save_infrastructure_chart,
+    save_model_metrics_chart,
+    save_roc_curve,
+)
 
 
 def train_model(
@@ -92,7 +99,14 @@ def train_model(
             "train_time_sec": train_time,
         }
         for name, value in metrics.items():
-            mlflow.log_metric(name, value)
+            if isinstance(value, (int, float)):
+                mlflow.log_metric(name, value)
+
+        infra_after = infrastructure_snapshot()
+        mlflow.log_metric("cpu_percent_before", infra_before["cpu_percent"])
+        mlflow.log_metric("cpu_percent_after", infra_after["cpu_percent"])
+        mlflow.log_metric("ram_used_percent_before", infra_before["ram_used_percent"])
+        mlflow.log_metric("ram_used_percent_after", infra_after["ram_used_percent"])
 
         model_path = output_dir / "model.cbm"
         model.save_model(str(model_path))
@@ -117,10 +131,27 @@ def train_model(
         data_report = compute_data_quality_report(df, "train_processed")
         data_report["infrastructure"] = {
             "before": infra_before,
-            "after": infrastructure_snapshot(),
+            "after": infra_after,
         }
         save_monitoring_report(data_report, output_dir / "data_quality.json")
         mlflow.log_artifact(str(output_dir / "data_quality.json"))
+
+        monitoring_summary = build_training_monitoring_summary(metrics, data_report)
+        summary_path = output_dir / "monitoring_summary.json"
+        save_monitoring_report(monitoring_summary, summary_path)
+        mlflow.log_artifact(str(summary_path))
+
+        save_model_metrics_chart(plots_dir / "model_metrics.png", metrics)
+        save_infrastructure_chart(
+            plots_dir / "infrastructure_training.png",
+            stage="training",
+            before=infra_before,
+            after=infra_after,
+            duration_sec=train_time,
+            duration_label="Training",
+        )
+        mlflow.log_artifact(str(plots_dir / "model_metrics.png"))
+        mlflow.log_artifact(str(plots_dir / "infrastructure_training.png"))
 
         mlflow.catboost.log_model(model, "model")
 

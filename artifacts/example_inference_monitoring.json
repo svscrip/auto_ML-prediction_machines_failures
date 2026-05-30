@@ -1,0 +1,36 @@
+{
+  "stage": "inference",
+  "predictions_rows": 90954,
+  "high_risk_count": 9096,
+  "high_risk_rate": 0.1,
+  "performance": {
+    "inference_time_sec": 0.013,
+    "rows_per_sec": 6819930.3,
+    "pipeline_time_sec": 1.241
+  },
+  "drift": {
+    "overall_status": "stable",
+    "features": {
+      "Air temperature [K]": {"mean_shift": -0.003, "psi": 0.00013, "status": "stable"},
+      "Process temperature [K]": {"mean_shift": -0.001, "psi": 0.00007, "status": "stable"},
+      "Rotational speed [rpm]": {"mean_shift": 0.186, "psi": 0.00010, "status": "stable"},
+      "Torque [Nm]": {"mean_shift": -0.010, "psi": 0.00016, "status": "stable"},
+      "Tool wear [min]": {"mean_shift": -0.120, "psi": 0.00018, "status": "stable"}
+    },
+    "alerts": [],
+    "thresholds": {
+      "stable": "< 0.1",
+      "warning": "0.1 – 0.25",
+      "critical": ">= 0.25"
+    }
+  },
+  "test_quality": {
+    "rows": 90954,
+    "null_total": 0,
+    "type_distribution": {"L": 63438, "M": 21535, "H": 5981}
+  },
+  "infrastructure": {
+    "before": {"cpu_percent": 5.4, "ram_total_gb": 31.91, "ram_used_percent": 54.6},
+    "after": {"cpu_percent": 0.0, "ram_total_gb": 31.91, "ram_used_percent": 54.6}
+  }
+}

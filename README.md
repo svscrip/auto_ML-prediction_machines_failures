@@ -215,7 +215,7 @@ flowchart TB
 
 ### 7.6. Дрейф данных (train → test)
 
-[`artifacts/inference_monitoring.json`](artifacts/inference_monitoring.json) — PSI **< 0,001** по всем признакам. Существенного дрейфа не выявлено.
+[`artifacts/inference_monitoring.json`](artifacts/inference_monitoring.json) — PSI по каждому признаку с автоматической классификацией (`stable` / `warning` / `critical`). Текущий прогон: **overall_status = stable**, PSI **< 0,001** по всем признакам.
 
 ---
 
@@ -336,40 +336,75 @@ git checkout -b feature/uchastnik-2-train
 
 ## 12. Мониторинг
 
+Мониторинг реализован в [`src/monitoring.py`](src/monitoring.py) и вызывается при обучении (`train.py`) и инференсе (`predict.py`).
+
+### Что отслеживается
+
+| Этап | Качество модели | Качество данных | Инфраструктура |
+|------|-----------------|-----------------|----------------|
+| **Обучение** | ROC-AUC, Recall, Precision, F1 → MLflow + `metrics.json` | пропуски, `target_rate`, распределение Type → `data_quality.json` | CPU/RAM до/после, **время обучения** (`psutil`, `train_time_sec`) |
+| **Инференс** | доля `risk_level=Высокий` | PSI и сдвиг средних train→test | CPU/RAM до/после, **время инференса** (`inference_time_sec`, `rows_per_sec`) |
+
 ### Качество модели (MLflow)
 
-- **Метаданные:** `artifacts/mlflow.db` (SQLite)  
-- **Артефакты runs:** `artifacts/mlartifacts/`  
-- **Эксперимент:** `machine_failure_prediction`  
+- **Backend:** `artifacts/mlflow.db` (SQLite) + `artifacts/mlartifacts/`
+- **Эксперимент:** `machine_failure_prediction`
 
-Логируются: параметры CatBoost, ROC-AUC, Precision, Recall, F1, время обучения, графики, модель.
+**Логируются в каждый run:**
+
+| Категория | Параметры / метрики |
+|-----------|---------------------|
+| Модель | `roc_auc`, `recall`, `precision`, `f1`, `train_time_sec` |
+| Инфраструктура | `cpu_percent_before/after`, `ram_used_percent_before/after` |
+| Артефакты | `model.cbm`, графики (confusion matrix, ROC, feature importance), `model_metrics.png`, `infrastructure_training.png`, `data_quality.json`, `monitoring_summary.json` |
 
 ```bash
-.\scripts\start-mlflow.ps1          # локально
-docker compose up mlflow            # http://localhost:5000
+.\scripts\start-mlflow.ps1          # локально → http://localhost:5000
+docker compose up mlflow            # тот же backend в контейнере
 ```
+
+**Сводный отчёт обучения:** [`artifacts/example_monitoring_summary.json`](artifacts/example_monitoring_summary.json)
 
 ### Качество данных и дрейф
 
 | Файл | Назначение |
 |------|------------|
-| `artifacts/data_quality.json` | Статистики train, пропуски, распределение Type |
-| `artifacts/inference_monitoring.json` | PSI, сдвиг средних train→test |
+| `artifacts/data_quality.json` | Статистики train после ETL, пропуски, CPU/RAM |
+| `artifacts/inference_monitoring.json` | PSI по признакам, статус дрейфа, качество test |
+| `artifacts/monitoring_summary.json` | Сводка мониторинга после обучения |
 | `artifacts/maintenance_recommendations.csv` | Бизнес-рекомендации |
 | `artifacts/predictions.csv` | Прогнозы по каждой единице оборудования |
 
-**PSI (Population Stability Index):** все признаки **< 0,001** — дрейф не выявлен (подробнее в §7.6).
+**PSI (Population Stability Index)** — интерпретация дрейфа:
+
+| PSI | Статус | Действие |
+|-----|--------|----------|
+| **< 0,1** | stable | распределение стабильно |
+| **0,1 – 0,25** | warning | усилить контроль признака |
+| **≥ 0,25** | critical | возможен дрейф, нужна переобучение/проверка данных |
+
+Текущий прогон: все признаки **stable** (PSI **< 0,001**). Пример: [`artifacts/example_inference_monitoring.json`](artifacts/example_inference_monitoring.json).
 
 ### Инфраструктура (CPU/RAM)
-
-Модуль [`src/monitoring.py`](src/monitoring.py) фиксирует загрузку через `psutil` до и после обучения ([`artifacts/data_quality.json`](artifacts/data_quality.json)):
 
 | Момент | CPU | RAM (использовано) |
 |--------|-----|---------------------|
 | До обучения | 18,1% | 54,3% (31,9 GB total) |
 | После обучения | 5,7% | 54,5% |
+| Инференс (batch) | до/после в отчёте | ~55% |
+| **Время обучения** | — | **~5–6 с** (smoke) |
+| **Время инференса** | — | **~0,01 с** (модель) / **~1,2 с** (полный pipeline на 90 954 строк) |
 
-Время обучения smoke-прогона: **~5,3 с** ([`artifacts/metrics.json`](artifacts/metrics.json)).
+Примеры: [`artifacts/example_metrics.json`](artifacts/example_metrics.json), [`artifacts/example_inference_monitoring.json`](artifacts/example_inference_monitoring.json).
+
+### Графики мониторинга
+
+| Метрики модели | Инфраструктура (обучение) | Инфраструктура (инференс) | Data Drift (PSI) |
+|----------------|---------------------------|---------------------------|------------------|
+| ![Model metrics](docs/images/model_metrics.png) | ![Infrastructure training](docs/images/infrastructure_training.png) | ![Infrastructure inference](docs/images/infrastructure_inference.png) | ![PSI drift](docs/images/drift_psi.png) |
+
+> Графики генерируются автоматически при `python -m src.train` и `python -m src.predict`.  
+> Для обновления в README: `.\scripts\sync-monitoring-images.ps1`
 
 ---
 
