@@ -4,8 +4,8 @@
 Дисциплина: **«Автоматизация машинного обучения»** (Нетология).  
 Автоматизированный ML-пайплайн для бинарной классификации отказов промышленного оборудования на датасете [Kaggle Playground Series S3E17](https://www.kaggle.com/competitions/playground-series-s3e17).
 
-> **GitHub (основной):** https://github.com/Deferon/bhemml-25-amo-2  
-> **GitHub (команда):** https://github.com/svscrip/auto_ML-prediction_machines_failures/tree/Yanshin  
+> **Ссылка на GitHub:** https://github.com/svscrip/auto_ML-prediction_machines_failures  
+> **Ветка сдачи проекта:** [Yanshin](https://github.com/svscrip/auto_ML-prediction_machines_failures/tree/Yanshin)  
 > **Доступ преподавателю:** добавьте collaborator `@ElenaSmyslovskikh`.
 
 ---
@@ -301,11 +301,8 @@ git add .
 git commit -m "Initial MLOps pipeline for machine failure prediction"
 git branch -M main
 
-git remote add origin https://github.com/Deferon/bhemml-25-amo-2.git
-git push -u origin main
-
-git remote add svscrip https://github.com/svscrip/auto_ML-prediction_machines_failures.git
-git push svscrip main:Yanshin
+git remote add origin https://github.com/svscrip/auto_ML-prediction_machines_failures.git
+git push -u origin main:Yanshin
 ```
 
 **Командная работа (ветки и pull request):**
@@ -314,9 +311,9 @@ git push svscrip main:Yanshin
 git checkout -b feature/uchastnik-1-etl
 git add . && git commit -m "feat: ETL and feature engineering"
 git push -u origin feature/uchastnik-1-etl
-gh pr create --title "Участник 1: ETL" --base main
+gh pr create --title "Участник 1: ETL" --base Yanshin
 
-git checkout main && git pull
+git checkout Yanshin && git pull
 git checkout -b feature/uchastnik-2-train
 # ... аналогично для Участника 2, 3, 4
 ```
@@ -364,12 +361,10 @@ docker compose up mlflow            # http://localhost:5000
 
 ## 13. GitHub-репозиторий
 
-| Репозиторий | Назначение | Ссылка |
-|-------------|------------|--------|
-| Основной | Полный MLOps-пайплайн | https://github.com/Deferon/bhemml-25-amo-2 |
-| Командный | Ветка сдачи проекта | https://github.com/svscrip/auto_ML-prediction_machines_failures/tree/Yanshin |
+**Репозиторий проекта:** https://github.com/svscrip/auto_ML-prediction_machines_failures  
+**Ветка сдачи:** https://github.com/svscrip/auto_ML-prediction_machines_failures/tree/Yanshin
 
-- Репозитории **публичные** (открытый доступ для проверки).
+- Репозиторий **публичный** (открытый доступ для проверки).
 - CI: GitHub Actions — pytest + Docker smoke train (см. §11).
 - Доступ преподавателю: `@ElenaSmyslovskikh`.
 
