@@ -35,16 +35,15 @@ def build_features(df: pd.DataFrame, is_train: bool = True) -> pd.DataFrame:
     )
     denominator = out["air_heat_power [kW]"] + out["Power [kW]"]
     out["efficiency [%]"] = (out["Power [kW]"] / denominator.replace(0, pd.NA)) * 100
-    out["efficiency [%]"] = out["efficiency [%]"].fillna(0.0)
+    out["efficiency [%]"] = out["efficiency [%]"].fillna(0.0).clip(0.0, 100.0)
 
     flags = out[FAILURE_FLAGS].fillna(0).astype(int)
     out[FAILURE_FLAGS] = flags
     out = out.sort_values([TYPE_COL, PRODUCT_ID_COL, "Tool wear [min]"])
     out["failures_sum"] = flags.sum(axis=1)
-    out["total_failures_cum"] = (
-        out.groupby([TYPE_COL, PRODUCT_ID_COL], observed=True)["failures_sum"]
-        .cumsum()
-    )
+    cumsum = out.groupby([TYPE_COL, PRODUCT_ID_COL], observed=True)["failures_sum"].cumsum()
+    # вычитаем текущую строку, чтобы считать только прошлые отказы
+    out["total_failures_cum"] = cumsum - out["failures_sum"]
     out = out.drop(columns=["failures_sum"])
 
     return out.reset_index(drop=True)

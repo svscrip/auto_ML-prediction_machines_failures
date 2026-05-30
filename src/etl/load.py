@@ -51,3 +51,7 @@ def validate_schema(df: pd.DataFrame, require_target: bool = True) -> None:
 
     if TYPE_COL in df.columns and df[TYPE_COL].isna().any():
         raise ValueError(f"Null values in column {TYPE_COL}")
+
+    for col in FAILURE_FLAGS:
+        if col in df.columns and df[col].isna().any():
+            raise ValueError(f"Null values in failure flag column {col}")
