@@ -1,4 +1,3 @@
-"""Data and model quality monitoring helpers."""
 import json
 from pathlib import Path
 from typing import Any
@@ -9,13 +8,16 @@ import psutil
 
 from src.config import RAW_NUMERIC_FEATURES, TARGET_COL
 
-# PSI interpretation (industry common thresholds)
 PSI_STABLE = 0.1
 PSI_WARNING = 0.25
 
-
 def compute_data_quality_report(df: pd.DataFrame, label: str = "train") -> dict:
-    """Basic data quality metrics for monitoring."""
+    """
+    Формирует отчет о качестве данных переданного датасета.
+    
+    Возвращает информацию о количестве строк в датасете (rows), количество пустых значений (null_counts),
+    арифмитическое среднее и стандартное отклонение для колонок с числовым типом данных.
+    """
     report = {
         "dataset": label,
         "rows": len(df),
@@ -33,7 +35,19 @@ def compute_data_quality_report(df: pd.DataFrame, label: str = "train") -> dict:
 def population_stability_index(
     expected: pd.Series, actual: pd.Series, bins: int = 10
 ) -> float:
-    """Simple PSI for drift detection on a numeric feature."""
+    """
+    Рассчитывает индекс стабильности популяции (PSI) для оценки смещения распределений.
+
+    PSI (Population Stability Index) измеряет, насколько распределение фактических данных
+    (например, за текущий период) отличается от ожидаемого распределения (например, за базовый период).
+    Метрика широко используется в кредитном скоринге и мониторинге моделей машинного обучения
+    для обнаружения дрейфа признаков.
+    
+    Интерпретация результатов (эмпирическое правило):
+        - PSI < 0.1   : Распределения практически идентичны (изменений нет).
+        - 0.1 <= PSI < 0.25 : Небольшой сдвиг (требуется внимание).
+        - PSI >= 0.25  : Значительный сдвиг (распределение изменилось кардинально, модель требует переобучения).
+    """
     breakpoints = np.linspace(
         min(expected.min(), actual.min()),
         max(expected.max(), actual.max()),
@@ -54,7 +68,10 @@ def population_stability_index(
 
 
 def compare_distributions(reference: pd.DataFrame, current: pd.DataFrame) -> dict:
-    """Compare reference vs current batch means and PSI."""
+    """
+    Выполняет сравнение распределений целевого датасета с новым датасетом
+    с помощью разницы между средними значениями соответствующих колонок и метрики PSI
+    """
     drift = {}
     for col in RAW_NUMERIC_FEATURES:
         if col not in reference.columns or col not in current.columns:
@@ -67,14 +84,18 @@ def compare_distributions(reference: pd.DataFrame, current: pd.DataFrame) -> dic
 
 
 def infrastructure_snapshot() -> dict:
-    """CPU/RAM snapshot for infrastructure monitoring."""
+    """
+    Возвращает информацию об используемых ресурсах
+    """
     mem = psutil.virtual_memory()
     return {
         "cpu_percent": psutil.cpu_percent(interval=0.1),
+        "cpu_percent": psutil.cpu_percent(interval=0.1),
         "ram_total_gb": round(mem.total / (1024**3), 2),
         "ram_used_percent": mem.percent,
+        "swap_memory_used": psutil.swap_memory().used,
+        "swap_memory_free": psutil.swap_memory().free
     }
-
 
 def interpret_psi(psi: float) -> str:
     """Classify drift severity by Population Stability Index."""
