@@ -342,8 +342,8 @@ git checkout -b feature/uchastnik-2-train
 
 | Этап | Качество модели | Качество данных | Инфраструктура |
 |------|-----------------|-----------------|----------------|
-| **Обучение** | ROC-AUC, Recall, Precision, F1 → MLflow + `metrics.json` | пропуски, `target_rate`, распределение Type → `data_quality.json` | CPU/RAM до и после (`psutil`) |
-| **Инференс** | доля `risk_level=Высокий` | PSI и сдвиг средних train→test | CPU/RAM на batch predict |
+| **Обучение** | ROC-AUC, Recall, Precision, F1 → MLflow + `metrics.json` | пропуски, `target_rate`, распределение Type → `data_quality.json` | CPU/RAM до/после, **время обучения** (`psutil`, `train_time_sec`) |
+| **Инференс** | доля `risk_level=Высокий` | PSI и сдвиг средних train→test | CPU/RAM до/после, **время инференса** (`inference_time_sec`, `rows_per_sec`) |
 
 ### Качество модели (MLflow)
 
@@ -356,7 +356,7 @@ git checkout -b feature/uchastnik-2-train
 |-----------|---------------------|
 | Модель | `roc_auc`, `recall`, `precision`, `f1`, `train_time_sec` |
 | Инфраструктура | `cpu_percent_before/after`, `ram_used_percent_before/after` |
-| Артефакты | `model.cbm`, графики (confusion matrix, ROC, feature importance), `data_quality.json`, `monitoring_summary.json`, `monitoring_dashboard.png` |
+| Артефакты | `model.cbm`, графики (confusion matrix, ROC, feature importance), `model_metrics.png`, `infrastructure_training.png`, `data_quality.json`, `monitoring_summary.json` |
 
 ```bash
 .\scripts\start-mlflow.ps1          # локально → http://localhost:5000
@@ -391,15 +391,17 @@ docker compose up mlflow            # тот же backend в контейнер�
 |--------|-----|---------------------|
 | До обучения | 18,1% | 54,3% (31,9 GB total) |
 | После обучения | 5,7% | 54,5% |
-| Инференс (batch) | ~12,4% | ~55,1% |
+| Инференс (batch) | до/после в отчёте | ~55% |
+| **Время обучения** | — | **~5–6 с** (smoke) |
+| **Время инференса** | — | **~0,01 с** (модель) / **~1,2 с** (полный pipeline на 90 954 строк) |
 
-Время обучения smoke-прогона: **~5,3 с** ([`artifacts/example_metrics.json`](artifacts/example_metrics.json)).
+Примеры: [`artifacts/example_metrics.json`](artifacts/example_metrics.json), [`artifacts/example_inference_monitoring.json`](artifacts/example_inference_monitoring.json).
 
 ### Графики мониторинга
 
-| Monitoring Dashboard | Data Drift (PSI) |
-|----------------------|------------------|
-| ![Monitoring dashboard](docs/images/monitoring_dashboard.png) | ![PSI drift](docs/images/drift_psi.png) |
+| Метрики модели | Инфраструктура (обучение) | Инфраструктура (инференс) | Data Drift (PSI) |
+|----------------|---------------------------|---------------------------|------------------|
+| ![Model metrics](docs/images/model_metrics.png) | ![Infrastructure training](docs/images/infrastructure_training.png) | ![Infrastructure inference](docs/images/infrastructure_inference.png) | ![PSI drift](docs/images/drift_psi.png) |
 
 > Графики генерируются автоматически при `python -m src.train` и `python -m src.predict`.  
 > Для обновления в README: `.\scripts\sync-monitoring-images.ps1`

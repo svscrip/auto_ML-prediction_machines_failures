@@ -1,5 +1,6 @@
 """Inference and business recommendations."""
 import argparse
+import time
 from pathlib import Path
 
 import pandas as pd
@@ -22,7 +23,7 @@ from src.monitoring import (
     infrastructure_snapshot,
     save_monitoring_report,
 )
-from src.plots import save_drift_chart
+from src.plots import save_drift_chart, save_infrastructure_chart
 
 
 def assign_risk_level(probability: float) -> str:
@@ -50,14 +51,12 @@ def predict(
 ) -> pd.DataFrame:
     output_dir = output_dir or ARTIFACTS_DIR
     model_path = model_path or output_dir / "model.cbm"
+    pipeline_t0 = time.perf_counter()
 
     if not model_path.exists():
         raise FileNotFoundError(
             f"Model not found at {model_path}. Run: python -m src.train"
         )
-
-    model = CatBoostClassifier()
-    model.load_model(str(model_path))
 
     test_raw = load_test()
     test_df = build_features(test_raw, is_train=False)
@@ -65,7 +64,14 @@ def predict(
 
     cat_idx = [X.columns.get_loc(c) for c in CAT_FEATURES if c in X.columns]
     pool = Pool(X, cat_features=cat_idx)
+
+    infra_before = infrastructure_snapshot()
+    inference_t0 = time.perf_counter()
+    model = CatBoostClassifier()
+    model.load_model(str(model_path))
     probabilities = model.predict_proba(pool)[:, 1]
+    inference_time_sec = time.perf_counter() - inference_t0
+    infra_after = infrastructure_snapshot()
 
     result = test_df[[c for c in ["id", PRODUCT_ID_COL, TYPE_COL] if c in test_df.columns]].copy()
     if "id" not in result.columns:
@@ -93,14 +99,20 @@ def predict(
         train_df = build_features(load_train(), is_train=True)
         drift = compare_distributions(train_df, test_df)
         test_quality = compute_data_quality_report(test_df, "test")
-        infra = infrastructure_snapshot()
+        pipeline_time_sec = time.perf_counter() - pipeline_t0
         high_risk = int((result["risk_level"] == "Высокий").sum())
+        infra = {
+            "before": infra_before,
+            "after": infra_after,
+        }
         drift_eval = build_inference_monitoring_summary(
             predictions_rows=len(result),
             high_risk_count=high_risk,
             drift=drift,
             test_quality=test_quality,
-            infrastructure={"inference": infra},
+            infrastructure=infra,
+            inference_time_sec=inference_time_sec,
+            pipeline_time_sec=pipeline_time_sec,
         )
         report_path = output_dir / "inference_monitoring.json"
         save_monitoring_report(drift_eval, report_path)
@@ -108,6 +120,14 @@ def predict(
         plots_dir = output_dir / "plots"
         if drift_eval["drift"]["features"]:
             save_drift_chart(drift_eval["drift"]["features"], plots_dir / "drift_psi.png")
+        save_infrastructure_chart(
+            plots_dir / "infrastructure_inference.png",
+            stage="inference",
+            before=infra_before,
+            after=infra_after,
+            duration_sec=inference_time_sec,
+            duration_label="Inference",
+        )
 
     return result
 

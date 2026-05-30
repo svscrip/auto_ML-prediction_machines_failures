@@ -37,7 +37,8 @@ from src.monitoring import (
 from src.plots import (
     save_confusion_matrix,
     save_feature_importance,
-    save_monitoring_dashboard,
+    save_infrastructure_chart,
+    save_model_metrics_chart,
     save_roc_curve,
 )
 
@@ -140,12 +141,17 @@ def train_model(
         save_monitoring_report(monitoring_summary, summary_path)
         mlflow.log_artifact(str(summary_path))
 
-        save_monitoring_dashboard(
-            plots_dir / "monitoring_dashboard.png",
-            metrics,
-            data_report["infrastructure"],
+        save_model_metrics_chart(plots_dir / "model_metrics.png", metrics)
+        save_infrastructure_chart(
+            plots_dir / "infrastructure_training.png",
+            stage="training",
+            before=infra_before,
+            after=infra_after,
+            duration_sec=train_time,
+            duration_label="Training",
         )
-        mlflow.log_artifact(str(plots_dir / "monitoring_dashboard.png"))
+        mlflow.log_artifact(str(plots_dir / "model_metrics.png"))
+        mlflow.log_artifact(str(plots_dir / "infrastructure_training.png"))
 
         mlflow.catboost.log_model(model, "model")
 

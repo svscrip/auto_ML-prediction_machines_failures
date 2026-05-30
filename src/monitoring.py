@@ -155,14 +155,25 @@ def build_inference_monitoring_summary(
     drift: dict[str, dict[str, float]],
     test_quality: dict[str, Any],
     infrastructure: dict[str, Any] | None = None,
+    inference_time_sec: float | None = None,
+    pipeline_time_sec: float | None = None,
 ) -> dict[str, Any]:
     """Consolidated inference-time monitoring snapshot."""
     drift_eval = evaluate_drift(drift)
+    performance: dict[str, Any] = {}
+    if inference_time_sec is not None:
+        performance["inference_time_sec"] = round(inference_time_sec, 3)
+        if predictions_rows:
+            performance["rows_per_sec"] = round(predictions_rows / inference_time_sec, 1)
+    if pipeline_time_sec is not None:
+        performance["pipeline_time_sec"] = round(pipeline_time_sec, 3)
+
     return {
         "stage": "inference",
         "predictions_rows": predictions_rows,
         "high_risk_count": high_risk_count,
         "high_risk_rate": round(high_risk_count / predictions_rows, 4) if predictions_rows else 0,
+        "performance": performance,
         "drift": drift_eval,
         "test_quality": {
             "rows": test_quality.get("rows"),

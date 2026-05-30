@@ -5,7 +5,9 @@ $dst = Join-Path $root "docs\images"
 New-Item -ItemType Directory -Force -Path $dst | Out-Null
 
 $files = @(
-    "monitoring_dashboard.png",
+    "model_metrics.png",
+    "infrastructure_training.png",
+    "infrastructure_inference.png",
     "drift_psi.png"
 )
 foreach ($file in $files) {
