@@ -23,15 +23,23 @@
 ## Слайд 3 — Архитектура ML-системы
 
 ```mermaid
-flowchart LR
-  CSV[CSV данные] --> ETL[ETL features.py]
-  ETL --> Train[CatBoost train.py]
-  Train --> MLflow[MLflow SQLite]
-  Train --> Model[model.cbm]
-  Model --> Predict[predict.py]
-  Predict --> Out[predictions.csv]
-  CI[GitHub Actions] --> Pytest[pytest]
-  Docker[Docker] --> Train
+flowchart TB
+    CSV[train.csv / test.csv] --> ETL[etl/load.py + features.py]
+    ETL --> TRAIN[train.py]
+    TRAIN --> MODEL[model.cbm]
+    TRAIN --> MLFLOW[MLflow SQLite]
+    ETL --> PREDICT[predict.py]
+    MODEL --> PREDICT
+    PREDICT --> OUT[predictions.csv + recommendations]
+
+    subgraph devops [DevOps]
+        CI[GitHub Actions / pytest]
+        DOCKER[Docker]
+    end
+
+    CI -.-> TRAIN
+    DOCKER -.-> TRAIN
+    DOCKER -.-> PREDICT
 ```
 
 ---

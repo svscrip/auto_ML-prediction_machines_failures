@@ -25,29 +25,43 @@
 ## 2. Схема пайплайна
 
 ```mermaid
-flowchart LR
-  subgraph extract [Extract]
-    TRAIN[train.csv]
-    TEST[test.csv]
-  end
-  subgraph transform [Transform]
-    LOAD[etl/load.py]
-    FEAT[etl/features.py]
-  end
-  subgraph load [Load]
-    TRAIN_MOD[train.py]
-    MLF[MLflow]
-    CBM[model.cbm]
-  end
-  subgraph serve [Serve]
-    PRED[predict.py]
-    CSV_OUT[predictions.csv]
-  end
-  TRAIN --> LOAD --> FEAT --> TRAIN_MOD --> CBM
-  TEST --> LOAD --> FEAT --> PRED --> CSV_OUT
-  TRAIN_MOD --> MLF
-  CBM --> PRED
+flowchart TB
+    subgraph extract [Extract — данные]
+        TRAIN[train.csv]
+        TEST[test.csv]
+    end
+
+    subgraph transform [Transform — ETL]
+        LOAD[etl/load.py]
+        FEAT[etl/features.py]
+        LOAD --> FEAT
+    end
+
+    subgraph training [Load — обучение]
+        TRAIN_PY[train.py]
+        MODEL[model.cbm]
+        TRAIN_PY --> MODEL
+    end
+
+    MLFLOW[MLflow tracking]
+
+    subgraph inference [Serve — инференс]
+        PREDICT[predict.py]
+        PRED[predictions.csv]
+        REC[maintenance_recommendations.csv]
+        PREDICT --> PRED
+        PREDICT --> REC
+    end
+
+    TRAIN --> LOAD
+    TEST --> LOAD
+    FEAT --> TRAIN_PY
+    TRAIN_PY --> MLFLOW
+    FEAT --> PREDICT
+    MODEL --> PREDICT
 ```
+
+**Поток данных:** CSV → ETL (`load.py`, `features.py`) → обучение CatBoost и логирование в MLflow → инференс на test → прогнозы и рекомендации по обслуживанию.
 
 ---
 
