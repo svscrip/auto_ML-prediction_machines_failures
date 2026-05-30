@@ -432,10 +432,10 @@ docker compose up mlflow            # тот же backend в контейнер�
 
 | № | Участник | Зона ответственности |
 |---|----------|---------------------|
-| 1 | **Участник 1** | ETL, feature engineering, EDA |
-| 2 | **Участник 2** | Обучение модели, MLflow, метрики |
-| 3 | **Участник 3** | Инференс, мониторинг, рекомендации по обслуживанию |
-| 4 | **Участник 4** | Docker, CI/CD, README, презентация |
+| 1 | Буржимский Сергей | ETL, feature engineering, EDA |
+| 2 | Яньшин Александр | Обучение модели, MLflow, метрики |
+| 3 | Фер Андрей | Инференс, мониторинг, рекомендации по обслуживанию |
+| 4 | Скрипин Сергей | Docker, CI/CD, README, презентация |
 
 ### Git workflow команды
 
@@ -443,10 +443,10 @@ docker compose up mlflow            # тот же backend в контейнер�
 
 | Участник | Пример ветки | Область |
 |----------|--------------|---------|
-| Участник 1 | `feature/uchastnik-1-etl` | `src/etl/`, `tests/test_features.py` |
-| Участник 2 | `feature/uchastnik-2-train` | `src/train.py`, MLflow |
-| Участник 3 | `feature/uchastnik-3-predict` | `src/predict.py`, `src/monitoring.py` |
-| Участник 4 | `feature/uchastnik-4-devops` | Docker, CI, README, docs |
+| Буржимский Сергей | `auto_ML-prediction_machines_failures/tree/feature/BSergey2000/` | `src/etl/`, `tests/test_features.py` |
+| Яньшин Александр| `auto_ML-prediction_machines_failures/tree/Yanshin` | `src/train.py`, MLflow |
+| Фер Андрей | `auto_ML-prediction_machines_failures/tree/feature/Andrey_Fer` | `src/predict.py`, `src/monitoring.py` |
+| Скрипин Сергей | `auto_ML-prediction_machines_failures/tree/main` | Docker, CI, README, docs |
 
 ---
 
