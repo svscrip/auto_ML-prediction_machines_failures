@@ -1,6 +1,5 @@
 """Inference and business recommendations."""
 import argparse
-import json
 from pathlib import Path
 
 import pandas as pd
@@ -16,7 +15,14 @@ from src.config import (
 )
 from src.etl.features import build_features, get_feature_matrix
 from src.etl.load import load_test, load_train
-from src.monitoring import compare_distributions, compute_data_quality_report
+from src.monitoring import (
+    build_inference_monitoring_summary,
+    compare_distributions,
+    compute_data_quality_report,
+    infrastructure_snapshot,
+    save_monitoring_report,
+)
+from src.plots import save_drift_chart
 
 
 def assign_risk_level(probability: float) -> str:
@@ -86,14 +92,22 @@ def predict(
     if use_train_for_drift:
         train_df = build_features(load_train(), is_train=True)
         drift = compare_distributions(train_df, test_df)
-        report = {
-            "predictions_rows": len(result),
-            "high_risk_count": int((result["risk_level"] == "Высокий").sum()),
-            "drift": drift,
-            "test_quality": compute_data_quality_report(test_df, "test"),
-        }
-        with open(output_dir / "inference_monitoring.json", "w", encoding="utf-8") as f:
-            json.dump(report, f, indent=2, ensure_ascii=False)
+        test_quality = compute_data_quality_report(test_df, "test")
+        infra = infrastructure_snapshot()
+        high_risk = int((result["risk_level"] == "Высокий").sum())
+        drift_eval = build_inference_monitoring_summary(
+            predictions_rows=len(result),
+            high_risk_count=high_risk,
+            drift=drift,
+            test_quality=test_quality,
+            infrastructure={"inference": infra},
+        )
+        report_path = output_dir / "inference_monitoring.json"
+        save_monitoring_report(drift_eval, report_path)
+
+        plots_dir = output_dir / "plots"
+        if drift_eval["drift"]["features"]:
+            save_drift_chart(drift_eval["drift"]["features"], plots_dir / "drift_psi.png")
 
     return result
 
