@@ -20,3 +20,11 @@ def test_validate_schema_rejects_missing_column():
     df = load_train().drop(columns=["Torque [Nm]"])
     with pytest.raises(ValueError, match="Missing columns"):
         validate_schema(df)
+
+
+def test_validate_schema_rejects_null_in_flag():
+    import numpy as np
+    df = load_train().copy()
+    df.loc[0, "TWF"] = np.nan
+    with pytest.raises(ValueError, match="failure flag"):
+        validate_schema(df)
