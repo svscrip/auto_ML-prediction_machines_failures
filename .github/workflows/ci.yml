@@ -2,7 +2,7 @@ name: CI
 
 on:
   push:
-    branches: [main, master]
+    branches: [main, master, "feature/**"]
   pull_request:
     branches: [main, master]
 
@@ -38,3 +38,9 @@ jobs:
           docker run --rm \
             -v "${{ github.workspace }}/artifacts:/app/artifacts" \
             machine-failure-mlops:latest src.train --smoke
+
+      - name: Smoke predict in container
+        run: |
+          docker run --rm \
+            -v "${{ github.workspace }}/artifacts:/app/artifacts" \
+            machine-failure-mlops:latest src.predict
