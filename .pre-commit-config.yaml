@@ -1,0 +1,89 @@
+# Pre-commit hooks configuration
+# Installation: pip install pre-commit
+# Setup: pre-commit install
+# Manual run: pre-commit run --all-files
+
+repos:
+  # Code formatting: Black
+  - repo: https://github.com/psf/black
+    rev: "23.12.0"
+    hooks:
+      - id: black
+        language_version: python3.10
+        args: ["--line-length=100"]
+
+  # Import sorting: isort
+  - repo: https://github.com/PyCQA/isort
+    rev: "5.13.2"
+    hooks:
+      - id: isort
+        args: ["--profile", "black", "--line-length", "100"]
+
+  # Linting: Flake8
+  - repo: https://github.com/PyCQA/flake8
+    rev: "6.1.0"
+    hooks:
+      - id: flake8
+        args: [
+          "--max-line-length=100",
+          "--extend-ignore=E203,E266,E501,W503",
+          "--max-complexity=10",
+        ]
+        additional_dependencies:
+          - flake8-docstrings
+          - flake8-comprehensions
+          - flake8-bugbear
+
+  # Linting: Pylint
+  - repo: https://github.com/PyCQA/pylint
+    rev: "pylint-3.0.3"
+    hooks:
+      - id: pylint
+        args: ["--max-line-length=100", "--disable=C0114,C0115,C0116"]
+
+  # Type checking: MyPy
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: "v1.7.1"
+    hooks:
+      - id: mypy
+        args: ["--ignore-missing-imports", "--no-implicit-optional"]
+        additional_dependencies:
+          - types-all
+
+  # Trailing whitespace and end-of-file fixer
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: "v4.5.0"
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-added-large-files
+        args: ["--maxkb=1000"]
+      - id: check-json
+      - id: check-merge-conflict
+      - id: debug-statements
+      - id: mixed-line-ending
+
+  # Docstring formatting: pydocstyle
+  - repo: https://github.com/PyCQA/pydocstyle
+    rev: "6.3.0"
+    hooks:
+      - id: pydocstyle
+        args: ["--convention=google", "--ignore=D100,D104"]
+
+  # YAML formatting
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: "v4.5.0"
+    hooks:
+      - id: yaml-unsafe
+
+ci:
+  autofix_commit_msg: |
+    [pre-commit.ci] auto fixes from pre-commit.com hooks
+    for more information, see https://pre-commit.ci
+  autofix_prs: true
+  autoupdate_branch: ""
+  autoupdate_commit_msg: "[pre-commit.ci] pre-commit autoupdate"
+  autoupdate_schedule: weekly
+  skip: []
+  submodules: false

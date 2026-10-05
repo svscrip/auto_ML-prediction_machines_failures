@@ -1,0 +1,27 @@
+# CODEOWNERS file - automatic code review assignment
+
+# Default reviewers for all PRs
+* @svscrip
+
+# ML pipeline specialists
+/src/train.py @svscrip
+/src/predict.py @svscrip
+/src/etl/ @svscrip
+/src/monitoring.py @svscrip
+
+# Infrastructure/DevOps
+/.github/ @svscrip
+/docker* @svscrip
+/scripts/ @svscrip
+
+# Documentation
+/docs/ @svscrip
+/*.md @svscrip
+
+# Testing
+/tests/ @svscrip
+
+# Configuration
+/pyproject.toml @svscrip
+/.pre-commit-config.yaml @svscrip
+/pytest.ini @svscrip

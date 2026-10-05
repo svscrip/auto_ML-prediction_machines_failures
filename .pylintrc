@@ -1,0 +1,61 @@
+[MASTER]
+# Specify a configuration file.
+# Load plugin with specific options.
+load-plugins=
+
+# Minimum Python version to target
+py-version=3.10
+
+[MESSAGES CONTROL]
+disable =
+    C0114,  # missing-module-docstring
+    C0115,  # missing-class-docstring
+    C0116,  # missing-function-docstring
+    R0913,  # too-many-arguments
+    R0914,  # too-many-locals
+    R0915,  # too-many-statements
+    W0212,  # protected-access
+
+[FORMAT]
+# Maximum number of characters on a single line.
+max-line-length=100
+
+# Regexp for a line that is allowed to be longer than the limit.
+long-line-note-type=pylint
+
+[DESIGN]
+# Maximum number of arguments for function / method.
+max-args=7
+
+# Maximum number of locals for function / method body.
+max-locals=20
+
+# Maximum number of return / yield for function / method body.
+max-returns=6
+
+# Maximum number of branch for function / method body.
+max-branches=12
+
+# Maximum number of statements in function / method body.
+max-statements=50
+
+[BASIC]
+# Naming style matching correct variable names.
+variable-naming-style=snake_case
+
+# Naming style matching correct argument names.
+argument-naming-style=snake_case
+
+# Naming style matching correct attribute names.
+attr-naming-style=snake_case
+
+# Naming style matching correct function names.
+function-naming-style=snake_case
+
+[IMPORTS]
+# List of module names for which member attributes should not be checked
+ignore-long-lines=^\s*(# )?<?https?://\S+>?$
+
+[SPELLING]
+# Limits inference and therefore improves performance.
+spelling-dict=en_US

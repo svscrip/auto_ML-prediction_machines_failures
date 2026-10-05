@@ -1,0 +1,54 @@
+[flake8]
+# Flake8 configuration file
+
+# Maximum line length (consistent with Black)
+max-line-length = 100
+
+# Complexity settings
+max-complexity = 10
+
+# Error codes to ignore
+ignore = 
+    E203,     # whitespace before ':'
+    E266,     # too many leading '#' for block comment
+    E501,     # line too long (handled by Black)
+    W503,     # line break before binary operator
+    D100,     # Missing docstring in public module
+    D104,     # Missing docstring in public package
+
+# Error codes to select
+select = 
+    E,        # PyCodeStyle errors
+    W,        # PyCodeStyle warnings
+    F,        # Pyflakes
+    C,        # McCabe complexity
+    B,        # flake8-bugbear
+    D,        # pydocstyle
+
+# Exclude paths
+exclude = 
+    .git,
+    __pycache__,
+    .venv,
+    venv,
+    .eggs,
+    *.egg,
+    build,
+    dist,
+    .mypy_cache,
+    .pytest_cache,
+    .tox,
+
+# Per-file ignores
+per-file-ignores =
+    __init__.py:F401,D104
+    tests/*:D100,D101,D102,D103
+
+# Documentation style
+docstring-convention = google
+
+# Statistics output
+statistics = True
+
+# Show source code for violations
+show-source = True
