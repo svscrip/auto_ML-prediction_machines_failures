@@ -1,26 +1,78 @@
+# ============ Python ============
 __pycache__/
 *.py[cod]
 *$py.class
+*.so
 .Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+pip-wheel-metadata/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# ============ Virtual Environments ============
 .venv/
 venv/
 env/
+ENV/
+env.bak/
+venv.bak/
 .env
-.idea/
+
+# ============ IDE & Editor ============
 .vscode/
-*.egg-info/
-dist/
-build/
-.pytest_cache/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+*.sublime-project
+*.sublime-workspace
+.project
+.pydevproject
+.settings/
+
+# ============ Testing ============
+.tox/
+.nox/
 .coverage
+.coverage.*
+.cache
+.pytest_cache/
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
 htmlcov/
 
+# ============ Type checking ============
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# ============ Project specific ============
 artifacts/*
 !artifacts/.gitkeep
 !artifacts/example_metrics.json
 !artifacts/example_monitoring_summary.json
 !artifacts/example_inference_monitoring.json
-
+*.cbm
+*.pkl
+*.joblib
 artifacts/mlflow.db
 artifacts/mlartifacts/
 artifacts/mlruns/
@@ -29,3 +81,24 @@ mlflow.db
 artifacts/smoke_test/
 catboost_info/
 reference-material/catboost-training-logs/
+
+# ============ Data Files (keep only references) ============
+*.csv
+!reference-material/**/*.csv
+!keis7-main/**/*.csv
+!docs/**/*.csv
+*.xlsx
+*.xls
+*.parquet
+
+# ============ Logs ============
+*.log
+logs/
+artifacts/ml-pipeline*.log
+
+# ============ OS ============
+Thumbs.db
+
+# ============ Jupyter ============
+.ipynb_checkpoints/
+*.ipynb_checkpoints

@@ -483,3 +483,6 @@ bhemml-25-amo-2/
 ## Лицензия и данные
 
 Данные: Kaggle Playground Series S3E17. Исходные ноутбуки исследования — в `reference-material/`.
+
+
+# cheking
